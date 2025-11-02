@@ -56,57 +56,11 @@ if (NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
 
-// CORS Configuration
-app.use(cors({
-    origin: (origin, callback) => {
-        // ---------- PRODUCTION ----------
-        if (NODE_ENV === 'production' && !origin) {
-            return callback(new Error('CORS: Origin required in production'));
-        }
+// Import CORS config
+const corsConfig = require('../cors-config');
 
-        // ---------- DEVELOPMENT SHORTCUTS ----------
-        if (NODE_ENV === 'development') {
-            // a) Requests made by tools without an Origin header (curl, Postman, native apps)
-            if (!origin) return callback(null, true);
-
-            // b) Allow private-LAN & localhost URLs so you can test from phones/tablets
-            const devRegex = /^http:\/\/(?:localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})(:\d+)?$/;
-            if (devRegex.test(origin)) return callback(null, true);
-        }
-
-        // ---------- CONFIG-DRIVEN ALLOW LIST ----------
-        const allowed = config.security.allowedOrigins;
-        const isAllowed = allowed.some(pattern => {
-            if (pattern === '*') return true;          // Fully open (not recommended)
-            if (pattern === origin) return true;       // Exact match
-
-            // Wildcard sub-domain e.g. "*.example.com" or suffix ".example.com"
-            if (pattern.startsWith('*.')) {
-                return origin.endsWith(pattern.slice(1)); // remove leading '*'
-            }
-            if (pattern.startsWith('.')) {
-                return origin.endsWith(pattern);         // allow ".example.com" style
-            }
-            return false;
-        });
-
-        if (isAllowed) {
-            return callback(null, true);
-        }
-
-        // ---------- BLOCK ----------
-        console.error(`[CORS] Blocked request from: ${origin}`);
-        callback(new Error(`CORS: Origin ${origin} not allowed`));
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: [],
-    maxAge: 86400 // 24 hours
-}));
-
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
+// Apply CORS middleware
+app.use(cors(corsConfig));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Rate Limiting - Stricter in production
