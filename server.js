@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-//const cors = require('cors');
+const cors = require('cors');
 const crypto = require('crypto');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -39,6 +39,10 @@ const helmetConfig = {
 };
 
 app.use(helmet(helmetConfig));
+
+// Enable CORS for all origins and handle preflight
+app.use(cors());
+app.options('*', cors());
 
 // HTTPS Enforcement in Production
 if (NODE_ENV === 'production') {
