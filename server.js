@@ -13,6 +13,10 @@ const app = express();
 const PORT = config.server.port;
 const NODE_ENV = config.server.nodeEnv;
 
+// When running behind a proxy/CDN (Render, Heroku, Railway, Nginx, etc.)
+// enable trust proxy so client IP is derived from X-Forwarded-For safely.
+app.set('trust proxy', 1);
+
 // Security Middleware
 const helmetConfig = {
     contentSecurityPolicy: NODE_ENV === 'production' ? {
@@ -43,6 +47,9 @@ app.use(helmet(helmetConfig));
 // Enable CORS for all origins and handle preflight
 app.use(cors());
 app.options('*', cors());
+
+// Parse JSON bodies for endpoints expecting JSON (e.g., delete with creatorToken)
+app.use(express.json());
 
 // HTTPS Enforcement in Production
 if (NODE_ENV === 'production') {
