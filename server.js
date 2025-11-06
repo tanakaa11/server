@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const cors = require('cors');
+//const cors = require('cors');
 const crypto = require('crypto');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -57,10 +57,10 @@ if (NODE_ENV === 'production') {
 }
 
 // Import CORS config
-const corsConfig = require('../cors-config');
+//const corsConfig = require('../cors-config');
 
 // Apply CORS middleware
-app.use(cors(corsConfig));
+//app.use(cors(corsConfig));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Rate Limiting - Stricter in production
@@ -571,10 +571,10 @@ app.use((err, req, res, next) => {
         return res.status(400).json({ error: 'Upload error' });
     }
     
-    // CORS errors
-    if (err.message && err.message.includes('CORS')) {
-        return res.status(403).json({ error: 'CORS policy violation' });
-    }
+    // // CORS errors
+    // if (err.message && err.message.includes('CORS')) {
+    //     return res.status(403).json({ error: 'CORS policy violation' });
+    // }
     
     // Generic error response (don't leak internal details in production)
     const statusCode = err.status || 500;
